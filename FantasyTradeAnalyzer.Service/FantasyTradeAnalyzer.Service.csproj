@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Database.Entity\FantasyTradeAnalyzer.Database.Entity.csproj" />
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Database\FantasyTradeAnalyzer.Database.csproj" />
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Model\FantasyTradeAnalyzer.Model.csproj" />
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Repository\FantasyTradeAnalyzer.Repository.csproj" />
+    <ProjectReference Include="..\YahooFantasyWrapper\YahooFantasyWrapper.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.9.9" />
+    <PackageReference Include="EntityFramework.BulkExtensions.EFCore" Version="1.4.2" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Database.Entity\FantasyTradeAnalyzer.Database.Entity.csproj" />
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Database\FantasyTradeAnalyzer.Database.csproj" />
+    <ProjectReference Include="..\FantasyTradeAnalyzer.Model\FantasyTradeAnalyzer.Model.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,470 @@
+﻿@model  FantasyTradeAnalyzer.Web.Models.ViewModel
+@{
+    ViewData["Title"] = "Yahoo Football Trade Analyzer";
+}
+
+<section id="dashboard-view" class="mainbar">
+    <section class="matter">
+        <h1>Yahoo Football Trade Analyzer</h1>
+        <div id="app">
+            <div class="row">
+                <div class="col-xs-12" style="text-align: right;">
+                    <button v-if="!loggedIn" v-cloak class="btn btn-default" type="submit">@Html.ActionLink("Login", "Login", "Home")</button>
+                    <button v-else v-cloak v-on:click="signOut()" id="signOut" type="button" class="btn btn-primary">Sign Out</button>
+                </div>
+            </div>
+            <div v-if="loggedIn" v-cloak>
+                Selected League: <select v-model="selectedLeague" v-on:change="chooseLeague()">
+                    <option disabled selected>Choose League</option>
+                    <option v-for="league in model.leagues" v-bind:value="league">
+                        {{  league.name }}
+                    </option>
+                </select>
+                <div id="teamDiv" class="row" v-if="selectedLeague.name">
+                    <div id="myTeamDiv" class="col-lg-6" style="float: left">
+                        <center>
+                            <h5 id="teamName" style="height:20px">{{myTeam.teamName}}</h5>
+                            <div class="wrapper" id="myTeam" style="border: 1px">
+                                <div class="tableRow header blue">
+                                    <div class="cell"></div>
+                                    <div class="cell">
+                                        Player Name
+                                    </div>
+                                    <div class="cell">
+                                        Position
+                                    </div>
+                                    <div class="cell">
+                                        Remaining Projected Points
+                                    </div>
+                                </div>
+                                <div class="tableRow" v-for="e in myTeam.roster" v-bind:id="e.playerKey">
+                                    <div class="cell">
+                                        <input type="checkbox"
+                                               v-model="e.selected">
+                                    </div>
+                                    <div class="cell">
+                                        {{e.name}}
+                                    </div>
+                                    <div class="cell">
+                                        {{e.displayPosition}}
+                                    </div>
+                                    <div class="cell">
+                                        {{e.projectedPoints}}
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                    <div id="otherTeam" class="col-lg-6" style="float: right;">
+                        <center>
+                            <h5 style="height:20px">
+                                Select Team
+                                <select v-model="selectedTeam" v-on:change="changeTeam()">
+                                    <option disabled selected>Choose Team</option>
+                                    <option v-for="team in teamList" v-bind:value="team">
+                                        {{  team.teamName }}
+                                    </option>
+                                </select>
+                            </h5>
+                            <div v-if="selectedTeam.roster" class="wrapper" id="thierTeam" style="border: 1px">
+                                <div class="tableRow header blue">
+                                    <div class="cell">
+                                    </div>
+                                    <div class="cell">
+                                        Player Name
+                                    </div>
+                                    <div class="cell">
+                                        Position
+                                    </div>
+                                    <div class="cell">
+                                        Remaining Projected Points
+                                    </div>
+                                </div>
+                                <div class="tableRow" v-for="e in selectedTeam.roster" v-bind:id="e.playerKey">
+                                    <div class="cell">
+                                        <input type="checkbox"
+                                               v-model="e.selected">
+                                    </div>
+                                    <div class="cell">
+                                        {{e.name}}
+                                    </div>
+                                    <div class="cell">
+                                        {{e.displayPosition}}
+                                    </div>
+                                    <div class="cell">
+                                        {{e.projectedPoints}}
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" style="text-align: left; margin-top:50px">
+                        <button v-on:click="evaluateTrade()" v-if="canTrade()" id="evalTrade" type="button" class="btn btn-primary">Evaluate Trade</button>
+                    </div>
+                </div>
+                <div v-if="showTradeDetail" class="col-xs-12" id="projectedimpact" style="margin-top:50px">
+                    <div>
+                        <h2>Projected Fantasy Impact</h2>
+                    </div>
+                    <div>
+                        <div class="tableRow header blue">
+                            <div class="cell">
+                                Teams
+                            </div>
+                            <div class="cell" style="width: 3%" v-for="n in range(selectedLeague.startWeek,selectedLeague.endWeek)">
+                                {{n}}
+                            </div>
+                            <div class="cell">Seasonal Differential</div>
+                        </div>
+
+                        <div class="tableRow">
+                            <div class="cell">
+                                <span id="teamName">{{myTeam.teamName}}</span>
+                            </div>
+                            <div style="text-align:right" class="cell" v-for="e in myPointDifferential">
+                                <span v-bind:class="{red: e.PointDifferential < 0, green: e.PointDifferential > 0 }">{{e.PointDifferential == 0 ? "-" : e.PointDifferential}}</span>
+                            </div>
+                            <div class="cell">
+                                <span style="padding-left: 30px;" id="myPointDiffTOtal" v-bind:class="{red: myPointDifferentialTotal < 0, green: myPointDifferentialTotal > 0 }">{{myPointDifferentialTotal}}</span>
+                            </div>
+                        </div>
+                        <div class="tableRow">
+                            <div class="cell"> <span id="thierTeamName">{{selectedTeam.teamName}}</span></div>
+                            <div style="text-align:right" class="cell" v-for="e in thierPointDifferential">
+                                <span v-bind:class="{red: e.PointDifferential < 0, green: e.PointDifferential > 0 }">{{e.PointDifferential == 0 ? "-" : e.PointDifferential}}</span>
+                            </div>
+                            <div class="cell">
+                                <span style="padding-left: 30px;" id="thierPointDiffTOtal" v-bind:class="{red: thierPointDifferentialTotal < 0, green: thierPointDifferentialTotal > 0 }">{{thierPointDifferentialTotal }}</span>
+                            </div>
+                        </div>
+                    </div><br /><br />
+                    <div id="optimallineups">
+                        <h2>Projected Optimal Lineups</h2>
+                        <div>
+                            <span class="optimal" v-bind:class="{selectedclassname: showTeam}" v-on:click="showTeam = true" id="myTeamName">{{myTeam.teamName}}</span> &nbsp; &nbsp; &nbsp;
+                            &nbsp;
+                            <span class="optimal" v-bind:class="{selectedclassname: !showTeam}" v-on:click="showTeam =false" id="thierTeamName">{{selectedTeam.teamName}}</span>
+                        </div>
+                    </div>
+                    <hr />
+                    <div id="upcomingweekssubnav" style="text-align:center">
+                        <div style="width:100%">
+                            <div style="width: 50%; float:left">
+                                <h4>Week:</h4>
+                                <ul class="weeks">
+                                    <li style="padding-right:5px; padding-left:5px" v-model="selectedWeek" v-for="n in range(selectedLeague.startWeek,selectedLeague.endWeek)"
+                                        v-bind:class="{ 'selectedclassname': selectedWeek == n }"
+                                        v-on:click="setWeeklyLineup(n)" class="optimal">
+                                        {{n}}
+                                    </li>
+                                </ul>
+                            </div>
+                            <div style="width: 50%; float:right" id="point-differential">
+                                <h4>Week {{selectedWeek}} Point Differential: </h4>
+                                <span v-if="showTeam" style="font-size:large" v-bind:class="{red: myWeekPointsDifference < 0, green: myWeekPointsDifference > 0 }">{{myWeekPointsDifference | number:2}}</span>
+                                <span v-if="!showTeam" style="font-size:large" v-bind:class="{red: thierWeekPointsDifference < 0, green: thierWeekPointsDifference > 0 }">{{thierWeekPointsDifference | number:2}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <br /><br />
+                    <div id="my-team-lineup" v-if="showTeam" style="text-align:center">
+                        <div id="myteamDiv" style="width:100%; overflow:hidden;">
+                            <div id="myTeamBeforeDiv" style="width:50%; float: left;">
+                                <center>
+                                    <h4>Before Trade</h4>
+                                    <trade-lineup :item="{week: selectedWeek, lineup:myBeforeTradeLineup }"></trade-lineup>
+                                </center>
+                            </div>
+                            <div id="myTeamAfterDiv " style="width:50%; float: right ">
+                                <center>
+                                    <h4>After Trade</h4>
+                                    <trade-lineup :item="{week: selectedWeek, lineup:myAfterTradeLineup }"></trade-lineup>
+                                </center>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="thier-team-lineup" v-if="!showTeam" style="text-align:center">
+                        <div id="thierteamDiv" style="width:100%; overflow:hidden;">
+                            <div id="thierTeamBeforeDiv" style="width:50%; float: left">
+                                <center>
+                                    <h4>Before Trade</h4>
+                                    <trade-lineup :item="{week: selectedWeek, lineup:thierBeforeTradeLineup }"></trade-lineup>
+                                </center>
+                            </div>
+                            <div id="thierTeamAfterDiv " style="width:50%; float: right ">
+                                <center>
+                                    <h4>After Trade</h4>
+                                    <trade-lineup :item="{week: selectedWeek, lineup:thierAfterTradeLineup }"></trade-lineup>
+                                </center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="loading" class="col-sm-12" style="margin-top:20px; text-align:center">
+                    <div class="divprogress">
+                        <h3> <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i> Loading Data</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+
+@{
+    var serializedModel = Html.Raw(Json.Serialize(Model));
+    <script>
+        var model = @serializedModel;
+    </script>
+}
+
+<script>
+    console.clear()
+
+    var Child = {
+        props: {
+            item: {
+                type: Object,
+                default: function () {
+                    return {}
+                }
+            }
+        },
+        computed: {
+            roster: function () {
+                var vm = this;
+
+
+                var foo = this.item.lineup.filter(function (line) {
+                    return line.week == vm.item.week;
+                })[0];
+
+                foo.roster.forEach(function (player) {
+                  if (player.matchup === undefined || player.matchup === null) {
+                      player.matchup = {
+                          weekProjections: 0,
+                          opponent: ""
+                      };
+
+                    }
+                 });
+                return foo;
+            }
+        },
+        data: function () {
+            return {
+                counter: 0
+            }
+        },
+        template: `<div>
+                        <div class="tableRow header blue" id= "statTable0" >
+                            <div class="cell">Player</div>
+                            <div class="cell">Position</div>
+                            <div class="cell">Proj Pts</div>
+                        </div>
+                        <div class="tableRow" v-for="e in roster.roster" v-bind:class="{bold: e.beingTraded }">
+                            <div class="cell">
+                                {{ e.name == "" ? 'No Player Available' : e.name }}
+                            </div>
+                            <div class="cell">
+                                {{ e.position.isFlex ? "FLEX" : e.position.fullName }}
+                            </div>
+                            <div class="cell">
+                                {{ item.week == e.byeWeek[0] ? 'BYE' : e.matchup.weekProjections }}
+                            </div>
+                        </div>
+                        <br />
+                        <h4>Week {{ item.week }} Projected Total (Before Trade): {{ roster.projectedPoints }}</h4>
+                    </div>
+`
+    }
+
+    const v = new Vue({
+        el: '#app',
+        data: {
+            model: model,
+            selectedLeague: {},
+            teamList: [],
+            myTeam: {},
+            selectedTeam: {},
+            showTradeDetail: false,
+            selectedWeek: {},
+            loading: false,
+            showTeam: false,
+            loggedIn: model != null && model.token != null,
+            message: 'hello!',
+            myPointDifferential: [],
+            myBeforeTradeLineup: [],
+            myAfterTradeLineup: [],
+            thierBeforeTradeLineup: [],
+            thierAfterTradeLineup: [],
+            thierPointDifferential: [],
+            myPointDifferentialTotal: {},
+            thierPointDifferentialTotal: {},
+        },
+        components: {
+            'trade-lineup': Child
+        },
+        methods: {
+            chooseLeague: function () {
+                this.myTeam = this.selectedLeague.teams.filter(function (team) {
+                    return team.isMyTeam == 1;
+                })[0];
+                this.teamList = this.selectedLeague.teams.filter(function (team) {
+                    return team.isMyTeam === null || team.isMyTeam == 0;
+                });
+                this.showTradeDetail = false;
+            },
+            changeTeam: function () {
+            },
+            canTrade: function () { 
+                if (this.myTeam.roster != undefined && this.selectedTeam.roster != undefined) {
+                    var myPlayersToTrade = this.myTeam.roster.filter(function (player) {
+                        return player.selected == true;
+                    });
+
+                    var thierPlayersToTrade = this.selectedTeam.roster.filter(function (player) {
+                        return player.selected == true;
+                    });
+
+                    return thierPlayersToTrade.length > 0 && myPlayersToTrade.length > 0;
+                }
+                return false;
+
+            },
+            evaluateTrade: function () {
+                var vm = this;
+                vm.showTradeDetail = false;
+                vm.loading = true;
+
+                var myPlayersToTrade = vm.myTeam.roster.filter(function (player) {
+                    return player.selected == true;
+                });
+
+                var thierPlayersToTrade = vm.selectedTeam.roster.filter(function (player) {
+                    return player.selected == true;
+                });
+
+
+
+                var viewModel = {
+                    SelectedLeague: vm.selectedLeague,
+                    MyTeam: vm.myTeam,
+                    ThierTeam: vm.selectedTeam,
+                    myPlayers: myPlayersToTrade,
+                    thierPlayers: thierPlayersToTrade,
+
+                };
+
+                fetch('api/trade', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + model.token,
+                    },
+                    body: JSON.stringify(viewModel)
+                }).then(response => {
+                    return response.json();
+                }).then(function (data) {
+
+                    vm.calculatePointDifferences(data);
+                    vm.setWeeklyLineup(vm.selectedLeague.currentWeek);
+
+                    vm.showTeam = true;
+                    vm.loading = false;
+
+                    vm.showTradeDetail = true;
+
+                    return "";
+                });
+            },
+            setWeeklyLineup: function (selectedWeek) {
+                this.selectedWeek = selectedWeek;
+                this.myWeekPointsDifference = this.myPointDifferential[selectedWeek - 1].PointDifferential;
+                this.thierWeekPointsDifference = this.thierPointDifferential[selectedWeek - 1].PointDifferential;
+                
+            },
+            signOut: function () {
+                this.loading = false;
+                this.loggedIn = false;
+                window.location.href = '/';
+
+            },
+            range: function (min, max, step) {
+                // parameters validation for method overloading
+                if (max === undefined) {
+                    max = min;
+                    min = 0;
+                }
+                step = Math.abs(step) || 1;
+                if (min > max) {
+                    step = -step;
+                }
+                // building the array
+                var output = [];
+                for (var value = min; value <= max; value += step) {
+                    output.push(value);
+                }
+                // returning the generated array
+                return output;
+            },
+            calculatePointDifferences: function (data) {
+
+                this.myBeforeTradeLineup = data.myBeforeTradeLineup;
+                console.log(this.myBeforeTradeLineup);
+                this.myAfterTradeLineup = data.myAfterTradeLineup;
+
+                this.thierBeforeTradeLineup = data.thierBeforeTradeLineup;
+                this.thierAfterTradeLineup = data.thierAfterTradeLineup;
+
+                var myTotals = this.calcTotals(this.selectedLeague.currentWeek, this.selectedLeague.endWeek, data.myBeforeTradeLineup, data.myAfterTradeLineup);
+                var thierTotals = this.calcTotals(this.selectedLeague.currentWeek, this.selectedLeague.endWeek, data.thierBeforeTradeLineup, data.thierAfterTradeLineup);
+
+                this.myPointDifferentialTotal = myTotals.DifferentialTotal;
+                this.thierPointDifferentialTotal = thierTotals.DifferentialTotal;
+
+                this.myPointDifferential = myTotals.DifferentialList;
+                this.thierPointDifferential = thierTotals.DifferentialList;
+            },
+
+            calcTotals: function (currentWeek, endWeek, beforeLineup, afterLineup) {
+                var points = {};
+
+                var myPointDifferentialTotal = 0;
+                var myPointDifferential = [];
+                var thierPointDifferentialTotal = 0;
+                var thierPointDifferential = [];
+                for (var i = 1; i <= endWeek; i++) {
+
+                    var before = beforeLineup.filter(function (lineup) {
+                        return lineup.week == i;
+                    })[0].projectedPoints;
+
+                    var after = afterLineup.filter(function (lineup) {
+                        return lineup.week == i;
+                    })[0].projectedPoints;
+
+                    var difference = 0;
+                    if (i < currentWeek)
+                    { }
+                    else {
+                        difference = after - before;
+                    }
+                    var d = {
+                        PointDifferential: Math.round(difference * Math.pow(10, 2)) / Math.pow(10, 2),
+                        Week: i
+                    };
+                    myPointDifferentialTotal += difference;
+                    myPointDifferential.push(d);
+                    difference = 0;
+                }
+
+                points.DifferentialTotal = Math.round(myPointDifferentialTotal * Math.pow(10, 2)) / Math.pow(10, 2);
+                points.DifferentialList = myPointDifferential;
+                return points
+            }
+        }
+    })
+</script>
