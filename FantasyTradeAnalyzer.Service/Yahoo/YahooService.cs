@@ -48,8 +48,8 @@ namespace FantasyTradeAnalyzer.Service.Yahoo
 
         public async Task<IEnumerable<LeagueDto>> GetLeagues()
         {
-            var leagues = await _fantasy.GetLeagues(new string[] { "371" }, EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Settings), _client.Auth.AccessToken);
-
+            var users = await _fantasy.UserResourceManager.GetUserGameLeagues(_client.Auth.AccessToken, new string[] { "371" }, EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Settings));
+            var leagues = users.GameList.Games.SelectMany(a => a.LeagueList.Leagues).ToList();
 
             List<ProjectionDto> projections;
 
@@ -59,15 +59,15 @@ namespace FantasyTradeAnalyzer.Service.Yahoo
                 _cache.Set("Projections", projections, cacheEntryOptions);
             }
 
-            var leagueTeams = await _fantasy.GetLeagueTeams(leagues.Select(a => a.LeagueKey).ToArray(), EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Roster), _client.Auth.AccessToken);
+            var leagueTeams = await _fantasy.TeamsCollectionManager.GetLeagueTeams(_client.Auth.AccessToken, leagues.Select(a=> a.LeagueKey).ToArray(), EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Roster));
 
 
             var leaguesDto = new List<LeagueDto>();
             foreach (var league in leagues)
             {
-                league.Teams = (from a in leagueTeams
-                                where a.LeagueKey == league.LeagueKey
-                                select a.Teams).FirstOrDefault();
+                league.TeamList = (from a in leagueTeams
+                                   where a.LeagueKey == league.LeagueKey
+                                   select a.TeamList).FirstOrDefault();
 
                 var tempLeague = new LeagueDto(league);
                 projections.PopulateProjectedPoints(tempLeague.Settings);

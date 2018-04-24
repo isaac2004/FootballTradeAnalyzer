@@ -27,12 +27,12 @@ namespace FantasyTradeAnalyzer.Model.Dto
         public TeamDto(Team team, List<ProjectionDto> projections, int week)
         {
             this.TeamName = team.Name;
-            this.IsMyTeam = string.IsNullOrEmpty(team.IsOwnedByCurrentLogin) ? false : true;
+            this.IsMyTeam = team.IsOwnedByCurrentLogin;
             this.TeamId = Convert.ToInt32(team.TeamId);
 
             this.Roster = new List<PlayerDto>();
             var badPositions = new string[] { "K", "DEF" };
-            foreach (var player in team.Roster.Players.Player)
+            foreach (var player in team.Roster.PlayerList.Players)
             {
                 var playerDto = new PlayerDto(player, projections, week);
                 if (!badPositions.Contains(playerDto.DisplayPosition))

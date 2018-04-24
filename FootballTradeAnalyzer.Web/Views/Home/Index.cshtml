@@ -15,7 +15,7 @@
             </div>
             <div v-if="loggedIn" v-cloak>
                 Selected League: <select v-model="selectedLeague" v-on:change="chooseLeague()">
-                    <option disabled selected>Choose League</option>
+                    <option disabled v-bind:value="{}">Choose League</option>
                     <option v-for="league in model.leagues" v-bind:value="league">
                         {{  league.name }}
                     </option>
@@ -60,7 +60,7 @@
                             <h5 style="height:20px">
                                 Select Team
                                 <select v-model="selectedTeam" v-on:change="changeTeam()">
-                                    <option disabled selected>Choose Team</option>
+                                    <option disabled v-bind:value="{}">Choose Team</option>
                                     <option v-for="team in teamList" v-bind:value="team">
                                         {{  team.teamName }}
                                     </option>

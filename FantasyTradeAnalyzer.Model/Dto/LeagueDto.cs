@@ -56,7 +56,7 @@ namespace FantasyTradeAnalyzer.Model.Dto
             this.Settings = new LeagueSettingsDto(league.Settings);
 
             this.Teams = new List<TeamDto>();
-            foreach (var team in league.Teams.Team)
+            foreach (var team in league.TeamList.Teams)
             {
                 this.Teams.Add(new TeamDto(team, projections, this.CurrentWeek));
             }

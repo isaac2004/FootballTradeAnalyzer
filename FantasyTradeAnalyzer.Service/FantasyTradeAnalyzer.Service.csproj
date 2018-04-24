@@ -9,7 +9,11 @@
     <ProjectReference Include="..\FantasyTradeAnalyzer.Database\FantasyTradeAnalyzer.Database.csproj" />
     <ProjectReference Include="..\FantasyTradeAnalyzer.Model\FantasyTradeAnalyzer.Model.csproj" />
     <ProjectReference Include="..\FantasyTradeAnalyzer.Repository\FantasyTradeAnalyzer.Repository.csproj" />
-    <ProjectReference Include="..\YahooFantasyWrapper\YahooFantasyWrapper.csproj" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YahooFantasyWrapper" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
