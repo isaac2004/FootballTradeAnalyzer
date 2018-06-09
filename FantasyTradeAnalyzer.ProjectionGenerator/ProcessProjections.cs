@@ -19,14 +19,9 @@ namespace FantasyTradeAnalyzer.ProjectionGenerator
     public static class ProcessProjections
     {
         [FunctionName("ProcessProjections")]
-        public static void Run([TimerTrigger("0 */10 * * * *")]TimerInfo myTimer, TraceWriter log, [Inject]IProjectionRespository projectionRespository)
+        public static void Run([TimerTrigger("0 0 10 * * *")]TimerInfo myTimer, TraceWriter log, [Inject]IProjectionRespository projectionRespository)
         {
             projectionRespository.PopulateProjections();
-
-
-            var projections = projectionRespository.GetProjections().Result.ToList();
-
-            var count = projections.Count;
         }
     }
 
