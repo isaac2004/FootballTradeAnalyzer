@@ -48,7 +48,7 @@ namespace FantasyTradeAnalyzer.Service.Yahoo
 
         public async Task<IEnumerable<LeagueDto>> GetLeagues()
         {
-            var users = await _fantasy.UserResourceManager.GetUserGameLeagues(_client.Auth.AccessToken, new string[] { "371" }, EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Settings));
+            var users = await _fantasy.UserResourceManager.GetUserGameLeagues(_client.Auth.AccessToken, new string[] { System.Environment.GetEnvironmentVariable("GameCode") }, EndpointSubResourcesCollection.BuildResourceList(EndpointSubResources.Settings));
             var leagues = users.GameList.Games.SelectMany(a => a.LeagueList.Leagues).ToList();
 
             List<ProjectionDto> projections;

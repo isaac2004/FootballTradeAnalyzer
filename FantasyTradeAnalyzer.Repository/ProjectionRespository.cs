@@ -46,10 +46,10 @@ namespace FantasyTradeAnalyzer.Respository
 
             string[] positions = { "1", "2", "4", "5" };
 
-            //Parallel.For((563 + 1), 580 + 1, i =>
-            for (int i = 596; i <= 612; i++)
+            //Parallel.For((628 + 1), 644 + 1, i =>
+            for (int i = 628; i <= 644; i++)
             {
-                int week = i - 595;
+                int week = i - 627;
                 foreach (var pos in positions)
                 {
                     var address = $"https://www.fantasysharks.com/apps/bert/forecasts/projections.php?League=&Position={pos}&Segment={i}&uid=4";
@@ -71,7 +71,7 @@ namespace FantasyTradeAnalyzer.Respository
         private static void GetProjection(HtmlDocument doc, ref List<ProjectionEntity> projectionsList, int week, Guid sessionId, string pos)
         {
             var myTable = doc.DocumentNode.SelectSingleNode("//table[@id='toolData']");
-            var trs = myTable.SelectNodes("//tr").Skip(5);
+            var trs = myTable.SelectNodes("//tr").Skip(6);
             foreach (var tr in trs)
             {
                 FantasySharks projection = new FantasySharks(tr, week, sessionId, pos);
