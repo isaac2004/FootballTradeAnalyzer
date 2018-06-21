@@ -7,6 +7,8 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.SnapshotCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -30,7 +32,13 @@ namespace FantasyTradeAnalyzer.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1); ;
             services.AddMemoryCache();
 
             services.AddDbContext<FootballContext>(options =>
@@ -55,8 +63,12 @@ namespace FantasyTradeAnalyzer.Web
             else
             {
                 ExceptionHandlerExtensions.UseExceptionHandler(app, "/Home/Error");
+                app.UseHsts();
             }
+
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCookiePolicy();
             MapperConfig.Config();
             app.UseMvc(routes =>
             MapRouteRouteBuilderExtensions.MapRoute(routes, "default", "{controller=Home}/{action=Index}/{id?}"));
