@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="6.2.2" />
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="YahooFantasyWrapper" Version="1.2.0" />
+    <PackageReference Include="YahooFantasyWrapper" Version="1.2.2" />
   </ItemGroup>
 
 

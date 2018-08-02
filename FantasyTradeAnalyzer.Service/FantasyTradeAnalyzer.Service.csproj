@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="YahooFantasyWrapper" Version="1.2.0" />
+    <PackageReference Include="YahooFantasyWrapper" Version="1.2.2" />
   </ItemGroup>
 
 </Project>
