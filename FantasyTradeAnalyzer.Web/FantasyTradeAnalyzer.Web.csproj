@@ -6,6 +6,10 @@
     <ApplicationInsightsAnnotationResourceId>/subscriptions/a07802f5-f8df-47d8-9b88-79ba55cfb396/resourcegroups/TradeAnalyzer/providers/microsoft.insights/components/FantasyTradeAnalyzer.Web</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <TargetLatestAspNetCoreRuntimePatch>true</TargetLatestAspNetCoreRuntimePatch>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
