@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 *.pubxml
+/FantasyTradeAnalyzer.Web/appsettings.Development.json
+/FantasyTradeAnalyzer.Web/appsettings.Production.json

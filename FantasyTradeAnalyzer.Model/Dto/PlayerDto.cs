@@ -52,7 +52,6 @@ namespace FantasyTradeAnalyzer.Model.Dto
 
 
             this.WeeklyMatchups = (from a in projections
-                                       //where a.Name == this.Name
                                    where NormalizeNames(a.Name, this.Name) && a.Position == this.DisplayPosition
                                    select new KeyValuePair<int, MatchupWeekDto>(
                                        a.Week.Value, new MatchupWeekDto
@@ -71,12 +70,28 @@ namespace FantasyTradeAnalyzer.Model.Dto
 
         private static bool NormalizeNames(string name1, string name2)
         {
-            string[] strip = { "jr", "jr.", "sr.", "sr", "II", "III", "." };
+            string[] strip = { ".", "jr", "sr" };
             foreach (var s in strip)
             {
                 name1 = name1.ToLower().Replace(s.ToLower(), "");
                 name2 = name2.ToLower().Replace(s.ToLower(), "");
             }
+
+            string[] romans = { "III", "II", "IV", "V" };
+
+            foreach (var roman in romans)
+            {
+                if (name1.Trim().EndsWith(roman.ToLower()))
+                {
+                    name1 = name1.ToLower().Replace(roman.ToLower(), "");
+                }
+
+                if (name2.Trim().EndsWith(roman.ToLower()))
+                {
+                    name2 = name2.ToLower().Replace(roman.ToLower(), "");
+                }
+            }
+
             return name1.Trim() == name2.Trim();
         }
     }
